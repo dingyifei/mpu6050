@@ -43,7 +43,7 @@ THE SOFTWARE.
  * @see MPU6050_ADDRESS_AD0_LOW
  * @see MPU6050_ADDRESS_AD0_HIGH
  */
-MPU6050::MPU6050(uint8_t address):devAddr(address) {
+MPU6050::MPU6050(I2C_HandleTypeDef *i2cHandle, uint8_t address):i2c(i2cHandle), devAddr(address) {
 }
 
 /** Power on and prepare for general usage.

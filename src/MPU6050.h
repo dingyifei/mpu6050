@@ -437,7 +437,7 @@ THE SOFTWARE.
 
 class MPU6050 {
     public:
-        MPU6050(uint8_t address=MPU6050_DEFAULT_ADDRESS);
+        MPU6050(I2C_HandleTypeDef *i2cHandle, uint8_t address=MPU6050_DEFAULT_ADDRESS);
 
         void initialize();
         bool testConnection();
@@ -1030,6 +1030,7 @@ class MPU6050 {
         #endif
 
     private:
+        I2C_HandleTypeDef *i2c;
         uint8_t devAddr;
         uint8_t buffer[14];
     #if defined(MPU6050_INCLUDE_DMP_MOTIONAPPS20) or defined(MPU6050_INCLUDE_DMP_MOTIONAPPS41)
