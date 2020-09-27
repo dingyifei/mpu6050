@@ -51,8 +51,10 @@ THE SOFTWARE.
 // I2C interface implementation setting
 // -----------------------------------------------------------------------------
 #include <stdint-gcc.h>
+#include <cstring>
+#include <cstdlib>
+#include <cmath>
 #include "STM32FIX.h"
-#include "stm32f4xx_hal.h"
 // comment this out if you are using a non-optimal IDE/implementation setting
 // but want the compiler to shut up about it
 #define I2CDEV_IMPLEMENTATION_WARNINGS
@@ -72,42 +74,42 @@ public:
     I2Cdev();
 
     static int8_t
-    readBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t *data, uint16_t timeout = I2Cdev::readTimeout);
+    readBit(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t *data, uint16_t timeout = I2Cdev::readTimeout);
 
     static int8_t
-    readBitW(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint16_t *data, uint16_t timeout = I2Cdev::readTimeout);
+    readBitW(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t *data, uint16_t timeout = I2Cdev::readTimeout);
 
-    static int8_t readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data,
+    static int8_t readBits(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data,
                            uint16_t timeout = I2Cdev::readTimeout);
 
-    static int8_t readBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t *data,
+    static int8_t readBitsW(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t *data,
                             uint16_t timeout = I2Cdev::readTimeout);
 
-    static int8_t readByte(uint8_t devAddr, uint8_t regAddr, uint8_t *data, uint16_t timeout = I2Cdev::readTimeout);
+    static int8_t readByte(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t *data, uint16_t timeout = I2Cdev::readTimeout);
 
-    static int8_t readWord(uint8_t devAddr, uint8_t regAddr, uint16_t *data, uint16_t timeout = I2Cdev::readTimeout);
-
-    static int8_t
-    readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data, uint16_t timeout = I2Cdev::readTimeout);
+    static int8_t readWord(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t *data, uint16_t timeout = I2Cdev::readTimeout);
 
     static int8_t
-    readWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16_t *data, uint16_t timeout = I2Cdev::readTimeout);
+    readBytes(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data, uint16_t timeout = I2Cdev::readTimeout);
 
-    static bool writeBit(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t data);
+    static int8_t
+    readWords(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data, uint16_t timeout = I2Cdev::readTimeout);
 
-    static bool writeBitW(uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint16_t data);
+    static bool writeBit(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint8_t data);
 
-    static bool writeBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data);
+    static bool writeBitW(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t bitNum, uint16_t data);
 
-    static bool writeBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t data);
+    static bool writeBits(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint8_t data);
 
-    static bool writeByte(uint8_t devAddr, uint8_t regAddr, uint8_t data);
+    static bool writeBitsW(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t data);
 
-    static bool writeWord(uint8_t devAddr, uint8_t regAddr, uint16_t data);
+    static bool writeByte(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t data);
 
-    static bool writeBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data);
+    static bool writeWord(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t data);
 
-    static bool writeWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16_t *data);
+    static bool writeBytes(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data);
+
+    static bool writeWords(I2C_HandleTypeDef* i2c, uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_t *data);
 
     static uint16_t readTimeout;
 };
