@@ -3533,14 +3533,12 @@ void MPU6050::PID(uint8_t ReadAddress, float kP, float kI, uint8_t Loops) {
     resetDMP();
 }
 
-#define printfloatx(Name, Variable, Spaces, Precision, EndTxt) { printf(F(Name)); {char S[(Spaces + Precision + 3)];printf(F(" ")); printf(dtostrf((float)Variable,Spaces,Precision ,S));}printf(F(EndTxt)); }//Name,Variable,Spaces,Precision,EndTxt
-
 void MPU6050::PrintActiveOffsets() {
     uint8_t AOffsetRegister = (getDeviceID() < 0x38) ? MPU6050_RA_XA_OFFS_H : 0x77;
     int16_t Data[3];
     //printf(F("Offset Register 0x"));
     //printf(AOffsetRegister>>4,HEX);printf(AOffsetRegister&0x0F,HEX);
-    printf(F("\n//           X Accel  Y Accel  Z Accel   X Gyro   Y Gyro   Z Gyro\n//OFFSETS   "));
+    printf("\n//           X Accel  Y Accel  Z Accel   X Gyro   Y Gyro   Z Gyro\n//OFFSETS   ");
     if (AOffsetRegister == 0x06) I2Cdev::readWords(i2c, devAddr, AOffsetRegister, 3, (uint16_t *) Data);
     else {
         I2Cdev::readWords(i2c, devAddr, AOffsetRegister, 1, (uint16_t *) Data);
@@ -3548,12 +3546,10 @@ void MPU6050::PrintActiveOffsets() {
         I2Cdev::readWords(i2c, devAddr, AOffsetRegister + 6, 1, (uint16_t *) Data + 2);
     }
     //	A_OFFSET_H_READ_A_OFFS(Data);
-    printfloatx("", Data[0], 5, 0, ",  ");
-    printfloatx("", Data[1], 5, 0, ",  ");
-    printfloatx("", Data[2], 5, 0, ",  ");
+    printf("%.0f,  %.0f,  %.0f,  ", Data[0], Data[1], Data[2]);
+
     I2Cdev::readWords(i2c, devAddr, 0x13, 3, (uint16_t *) Data);
     //	XG_OFFSET_H_READ_OFFS_USR(Data);
-    printfloatx("", Data[0], 5, 0, ",  ");
-    printfloatx("", Data[1], 5, 0, ",  ");
-    printfloatx("", Data[2], 5, 0, "\n");
+    printf("%.0f,  %.0f,  %.0f\n", Data[0], Data[1], Data[2]);
+
 }
