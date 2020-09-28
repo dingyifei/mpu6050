@@ -6,8 +6,8 @@
 
 #define STM32FIX_H
 #include "stm32f4xx_hal.h"
+#include <i2c.h>
 
-unsigned long millis();
 long map(long x, long in_min, long in_max, long out_min, long out_max);
 
 
