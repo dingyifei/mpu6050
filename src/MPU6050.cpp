@@ -37,14 +37,13 @@ THE SOFTWARE.
 
 #include "MPU6050.h"
 
-
 /** Specific address constructor.
  * @param address I2C address, uses default I2C address if none is specified
  * @see MPU6050_DEFAULT_ADDRESS
  * @see MPU6050_ADDRESS_AD0_LOW
  * @see MPU6050_ADDRESS_AD0_HIGH
  */
-MPU6050::MPU6050(I2C_HandleTypeDef *i2cHandle, uint8_t address) : i2c(i2cHandle), devAddr(address) {
+MPU6050::MPU6050(uint8_t address): devAddr(address) {
 }
 
 /** Power on and prepare for general usage.
@@ -3257,7 +3256,6 @@ bool MPU6050::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8_t b
     uint8_t *verifyBuffer = 0;
     uint8_t *progBuffer = 0;
     uint16_t i;
-    uint8_t j;
     if (verify) verifyBuffer = (uint8_t *) malloc(MPU6050_DMP_MEMORY_CHUNK_SIZE);
     //if (useProgMem) progBuffer = (uint8_t *) malloc(MPU6050_DMP_MEMORY_CHUNK_SIZE);
     for (i = 0; i < dataSize;) {
@@ -3334,7 +3332,7 @@ bool MPU6050::writeProgMemoryBlock(const uint8_t *data, uint16_t dataSize, uint8
 bool MPU6050::writeDMPConfigurationSet(const uint8_t *data, uint16_t dataSize, bool useProgMem) {
     uint8_t *progBuffer = 0;
     uint8_t success, special;
-    uint16_t i, j;
+    uint16_t i;
     /*if (useProgMem) {
         progBuffer = (uint8_t *) malloc(8); // assume 8-byte blocks, realloc later if necessary
     }
@@ -3545,10 +3543,10 @@ void MPU6050::PrintActiveOffsets() {
         I2Cdev::readWords(devAddr, AOffsetRegister + 6, 1, (uint16_t *) Data + 2);
     }
     //	A_OFFSET_H_READ_A_OFFS(Data);
-    printf("%.0f,  %.0f,  %.0f,  ", Data[0], Data[1], Data[2]);
+    printf("%.0f,  %.0f,  %.0f,  ", float(Data[0]), float(Data[1]), float(Data[2]));
 
     I2Cdev::readWords(devAddr, 0x13, 3, (uint16_t *) Data);
     //	XG_OFFSET_H_READ_OFFS_USR(Data);
-    printf("%.0f,  %.0f,  %.0f\n", Data[0], Data[1], Data[2]);
+    printf("%.0f,  %.0f,  %.0f\n", float(Data[0]), float(Data[1]), float(Data[2]));
 
 }

@@ -49,9 +49,10 @@ THE SOFTWARE.
 // band-aid fix for platforms without Wire-defined BUFFER_LENGTH (removed from some official implementations)
 #define BUFFER_LENGTH 32
 #endif
+
 /** Default constructor.
  */
-I2Cdev::I2Cdev(){
+I2Cdev::I2Cdev() {
 }
 
 /** Read a single bit from an 8-bit device register.
@@ -120,7 +121,8 @@ I2Cdev::readBits(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t len
  * @return Status of read operation (1 = success, 0 = failure, -1 = timeout)
  */
 int8_t
-I2Cdev::readBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t *data, uint16_t timeout) {
+I2Cdev::readBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint8_t length, uint16_t *data,
+                  uint16_t timeout) {
     // 1101011001101001 read byte
     // fedcba9876543210 bit numbers
     //    xxx           args: bitStart=12, length=3
@@ -171,12 +173,14 @@ int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8
 #ifdef I2CDEV_SERIAL_DEBUG
     printf("I2C (0x%x) reading %u words from 0x%x...", devAddr, length, regAddr);
 #endif
-    HAL_StatusTypeDef status = HAL_I2C_Mem_Read(&hi2c1, uint16_t(devAddr), uint16_t(regAddr), I2C_MEMADD_SIZE_8BIT, data, uint16_t(length), uint32_t(timeout));
+    HAL_I2C_IsDeviceReady(&hi2c1, 0x69 << 1, 1, 100);
+    HAL_StatusTypeDef status = HAL_I2C_Mem_Read(&hi2c1, uint16_t(devAddr) << 1, uint16_t(regAddr), sizeof(uint8_t),
+                                                data, uint16_t(length) * sizeof(uint8_t), uint32_t(timeout));
 #ifdef I2CDEV_SERIAL_DEBUG
     printf(". Done");
 #endif
 
-    if(status == HAL_OK){
+    if (status == HAL_OK) {
         return length;
     }
     return -1;
@@ -191,24 +195,25 @@ int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8
  * @return Number of words read (-1 indicates failure)
  */
 int8_t I2Cdev::readWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16_t *data, uint16_t timeout) {
-    uint16_t intermediate[(uint8_t)length * 2];
+    uint16_t intermediate[(uint8_t) length * 2];
 #ifdef I2CDEV_SERIAL_DEBUG
     printf("I2C (0x%x) reading %u words from 0x%x...", devAddr, length, regAddr);
 #endif
+    HAL_I2C_IsDeviceReady(&hi2c1, 0x69 << 1, 1, 100);
     HAL_StatusTypeDef status = HAL_I2C_Mem_Read(&hi2c1,
-                                                uint16_t(devAddr << 1),
+                                                uint16_t(devAddr) << 1,
                                                 uint16_t(regAddr),
-                                                I2C_MEMADD_SIZE_8BIT,
-                                                (uint8_t *)intermediate,
-                                                uint16_t(length * 2),
+                                                sizeof(uint8_t),
+                                                (uint8_t *) intermediate,
+                                                uint16_t(length) * 2 * sizeof(uint8_t),
                                                 uint32_t(timeout));
 #ifdef I2CDEV_SERIAL_DEBUG
     printf(". Done");
 #endif
 
-    if(status == HAL_OK){
+    if (status == HAL_OK) {
         for (uint8_t i = 0; i < length; i++) {
-            data[i] = (intermediate[2*i] << 8) | intermediate[2*i + 1];
+            data[i] = (intermediate[2 * i] << 8) | intermediate[2 * i + 1];
         }
         return length;
     }
@@ -288,7 +293,7 @@ bool I2Cdev::writeBitsW(uint8_t devAddr, uint8_t regAddr, uint8_t bitStart, uint
     // 1010111110010110 original value (sample)
     // 1010001110010110 original & ~mask
     // 1010101110010110 masked | value
-    uint16_t w; //todo: swiched to int8 potential problems
+    uint16_t w;
     if (readWord(devAddr, regAddr, &w) != 0) {
         uint16_t mask = ((1 << length) - 1) << (bitStart - length + 1);
         data <<= (bitStart - length + 1); // shift data into correct position
@@ -333,7 +338,9 @@ bool I2Cdev::writeBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_
     printf("I2C (0x%x) writing %u words to 0x%x...$", devAddr, length, regAddr);
 #endif
     HAL_StatusTypeDef status;
-    status = HAL_I2C_Mem_Write(&hi2c1, uint16_t(devAddr << 1), uint16_t(regAddr), I2C_MEMADD_SIZE_8BIT, data, uint16_t(length), uint32_t(0));
+    HAL_I2C_IsDeviceReady(&hi2c1, 0x69 << 1, 1, 100);
+    status = HAL_I2C_Mem_Write(&hi2c1, uint16_t(devAddr), uint16_t(regAddr), sizeof(uint8_t), data,
+                               uint16_t(length) * sizeof(uint8_t), uint32_t(1000));
     //note some issue might show up for devAddr, try <<1 if it shows up
 
 #ifdef I2CDEV_DEBUG
@@ -350,18 +357,19 @@ bool I2Cdev::writeBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8_
  * @return Status of operation (true = success)
  */
 bool I2Cdev::writeWords(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint16_t *data) {
-    uint8_t intermediate[(uint8_t)length * 2];
-    for(int i=0; i<length*2;i+=2){
-        intermediate[i] = data[i]<<8;
-        intermediate[i+1] = data[i];
+    uint8_t intermediate[(uint8_t) length * 2];
+    for (int i = 0; i < length * 2; i += 2) {
+        intermediate[i] = data[i] << 8;
+        intermediate[i + 1] = data[i];
     }
 #ifdef I2CDEV_DEBUG
     printf("I2C (0x%x) writing %u words to 0x%x...$", devAddr, length, regAddr);
 #endif
 
     HAL_StatusTypeDef status;
-    status = HAL_I2C_Mem_Write(&hi2c1, uint16_t(devAddr << 1), uint16_t(regAddr), I2C_MEMADD_SIZE_8BIT, intermediate, uint16_t(length*2), uint32_t(0));
-    //note some issue might show up for devAddr, try <<1 if it shows up
+    HAL_I2C_IsDeviceReady(&hi2c1, 0x69 << 1, 1, 100);
+    status = HAL_I2C_Mem_Write(&hi2c1, uint16_t(devAddr) << 1, uint16_t(regAddr), sizeof(uint8_t), intermediate,
+                               uint16_t(length) * 2 * sizeof(uint8_t), uint32_t(1000));
 
 #ifdef I2CDEV_DEBUG
     printf(". Done.");

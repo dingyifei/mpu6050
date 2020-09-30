@@ -51,9 +51,6 @@ THE SOFTWARE.
 // I2C interface implementation setting
 // -----------------------------------------------------------------------------
 #include <stdint-gcc.h>
-//#include <cstring>
-//#include <cstdlib>
-//#include <cmath>
 #include "STM32FIX.h"
 // comment this out if you are using a non-optimal IDE/implementation setting
 // but want the compiler to shut up about it

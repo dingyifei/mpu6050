@@ -38,21 +38,10 @@ THE SOFTWARE.
 #define _MPU6050_H_
 
 #include "I2Cdev.h"
+#include "STM32FIX.h"
 
 // supporting link:  http://forum.arduino.cc/index.php?&topic=143444.msg1079517#msg1079517
 // also: http://forum.arduino.cc/index.php?&topic=141571.msg1062899#msg1062899s
-
-#ifdef __AVR__
-#include <avr/pgmspace.h>
-#elif defined(ARDUINO_ARCH_SAMD)
-#include <avr/dtostrf.h>
-#else
-//#define PROGMEM /* empty */
-//#define pgm_read_byte(x) (*(x))
-//#define pgm_read_word(x) (*(x))
-//#define pgm_read_float(x) (*(x))
-//#define PSTR(STR) STR
-#endif
 
 
 #define MPU6050_ADDRESS_AD0_LOW     0x68 // address pin low (GND), default for InvenSense evaluation board
@@ -437,7 +426,7 @@ THE SOFTWARE.
 
 class MPU6050 {
     public:
-        MPU6050(I2C_HandleTypeDef *i2cHandle, uint8_t address=MPU6050_DEFAULT_ADDRESS);
+        explicit MPU6050(uint8_t address=MPU6050_DEFAULT_ADDRESS);
 
         void initialize();
         bool testConnection();
@@ -1030,7 +1019,6 @@ class MPU6050 {
         #endif
 
     private:
-        I2C_HandleTypeDef *i2c;
         uint8_t devAddr;
         uint8_t buffer[14];
     #if defined(MPU6050_INCLUDE_DMP_MOTIONAPPS20) or defined(MPU6050_INCLUDE_DMP_MOTIONAPPS41)
